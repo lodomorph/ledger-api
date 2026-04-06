@@ -73,8 +73,11 @@ pipeline {
                     bash ${TRUECD_ROOT}/gates/02-unit-testing/setup-hoverfly.sh \
                         --oas-file ${OAS_FILE}
                 '''
-                // Run unit tests + generate JaCoCo report (skip integration tests — Gate 4 owns them)
-                sh 'mvn verify -q -DskipITs'
+                // Run unit tests then generate JaCoCo report separately.
+                // Avoids mvn verify which triggers jacoco:check in the pom —
+                // TrueCD's check-coverage.sh is the authoritative coverage gate.
+                sh 'mvn test -q'
+                sh 'mvn jacoco:report -q'
                 // Enforce coverage threshold (hard fail)
                 sh '''
                     PYTHONIOENCODING=utf-8 \
