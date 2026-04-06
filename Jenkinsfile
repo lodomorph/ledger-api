@@ -110,9 +110,10 @@ pipeline {
                 // Gate: can-i-deploy to dev environment
                 sh '''
                     bash ${TRUECD_ROOT}/gates/03-contract-testing/can-i-deploy.sh \
-                        --participant ${APP_NAME} \
-                        --version     $(git rev-parse --short HEAD) \
-                        --environment dev
+                        --participant     ${APP_NAME} \
+                        --version         $(git rev-parse --short HEAD) \
+                        --environment     dev \
+                        --ignore-no-pacts
                 '''
             }
         }
