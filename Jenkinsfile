@@ -156,18 +156,16 @@ pipeline {
         success {
             sh '''
                 curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+                    --data-urlencode "text=✅ ledger-api #${BUILD_NUMBER} — Gates 1-5 passed. PR is green. (${GIT_BRANCH}@$(git rev-parse --short HEAD))" \
                     -d chat_id="${TG_CHAT_ID}" \
-                    -d parse_mode="HTML" \
-                    -d text="&#x2705; <b>ledger-api #${BUILD_NUMBER}</b> — Gates 1&#x2013;5 passed. PR is green. (${GIT_BRANCH}@$(git rev-parse --short HEAD))" \
                 || true
             '''
         }
         failure {
             sh '''
                 curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+                    --data-urlencode "text=❌ ledger-api #${BUILD_NUMBER} — FAILED. PR is blocked. ${BUILD_URL}" \
                     -d chat_id="${TG_CHAT_ID}" \
-                    -d parse_mode="HTML" \
-                    -d text="&#x274C; <b>ledger-api #${BUILD_NUMBER}</b> — FAILED at ${STAGE_NAME}. PR is blocked. <a href='${BUILD_URL}'>View logs</a>" \
                 || true
             '''
         }
