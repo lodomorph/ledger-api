@@ -73,8 +73,8 @@ pipeline {
                     bash ${TRUECD_ROOT}/gates/02-unit-testing/setup-hoverfly.sh \
                         --oas-file ${OAS_FILE}
                 '''
-                // Run unit tests + generate JaCoCo report
-                sh 'mvn verify -q'
+                // Run unit tests + generate JaCoCo report (skip integration tests — Gate 4 owns them)
+                sh 'mvn verify -q -DskipITs'
                 // Enforce coverage threshold (hard fail)
                 sh '''
                     PYTHONIOENCODING=utf-8 \
