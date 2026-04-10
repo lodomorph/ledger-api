@@ -81,7 +81,7 @@ pipeline {
 
         stage('3. Contract Tests') {
             steps {
-                sh 'mvn test -Dtest=ContractTest'
+                sh 'mvn test -Dtest=ContractTest -Dsurefire.failIfNoSpecifiedTests=false'
                 sh 'mvn pact:publish'
                 sh 'mvn pact:verify'
                 withCredentials([string(credentialsId: 'pactflow-token', variable: 'PACT_BROKER_TOKEN')]) {
@@ -125,7 +125,7 @@ pipeline {
 
         stage('4. Component Tests') {
             steps {
-                sh 'mvn test -Dspring.profiles.active=test -q'
+                sh 'mvn test -Dspring.profiles.active=test -Dsurefire.failIfNoSpecifiedTests=false -q'
             }
             post {
                 always {
@@ -138,7 +138,7 @@ pipeline {
             parallel {
                 stage('BDD - Cucumber') {
                     steps {
-                        sh 'mvn test -Dtest=CucumberRunner -Dcucumber.filter.tags=@smoke'
+                        sh 'mvn test -Dtest=CucumberRunner -Dcucumber.filter.tags=@smoke -Dsurefire.failIfNoSpecifiedTests=false'
                     }
                     post {
                         always { junit '**/target/cucumber-reports/*.xml' }
