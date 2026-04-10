@@ -67,23 +67,23 @@ pipeline {
 
         stage('2. Unit Tests') {
             steps {
-                sh './gradlew test'
-                sh './gradlew jacocoTestReport'
+                sh 'mvn test'
+                sh 'mvn jacoco:report'
             }
             post {
                 always {
-                    junit '**/build/test-results/test/**/*.xml'
+                    junit '**/target/surefire-reports/**/*.xml'
                     recordCoverage(tools: [[parser: 'JACOCO',
-                        pattern: 'build/reports/jacoco/test/jacocoTestReport.xml']])
+                        pattern: 'target/site/jacoco/jacoco.xml']])
                 }
             }
         }
 
         stage('3. Contract Tests') {
             steps {
-                sh './gradlew pactTest'
-                sh './gradlew pactPublish'
-                sh './gradlew pactVerify'
+                sh 'mvn test -Dtest=ContractTest'
+                sh 'mvn pact:publish'
+                sh 'mvn pact:verify'
                 withCredentials([string(credentialsId: 'pactflow-token', variable: 'PACT_BROKER_TOKEN')]) {
                     // can-i-deploy.sh writes reports/contracts/can-i-deploy-*.json automatically
                     sh """
@@ -125,11 +125,11 @@ pipeline {
 
         stage('4. Component Tests') {
             steps {
-                sh './gradlew componentTest'
+                sh 'mvn test -Dspring.profiles.active=test -q'
             }
             post {
                 always {
-                    junit '**/build/test-results/componentTest/**/*.xml'
+                    junit '**/target/surefire-reports/**/*.xml'
                 }
             }
         }
@@ -138,10 +138,10 @@ pipeline {
             parallel {
                 stage('BDD - Cucumber') {
                     steps {
-                        sh './gradlew cucumberTest -Ptags=@smoke'
+                        sh 'mvn test -Dtest=CucumberRunner -Dcucumber.filter.tags=@smoke'
                     }
                     post {
-                        always { junit '**/cucumber-reports/*.xml' }
+                        always { junit '**/target/cucumber-reports/*.xml' }
                     }
                 }
                 stage('API - Newman') {
