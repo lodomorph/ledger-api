@@ -32,8 +32,9 @@ pipeline {
                 dir("${TRUECD_DIR}") {
                     git url: "${TRUECD_REPO}",
                         branch: 'main',
-                        credentialsId: 'github-creds'   // Jenkins credential ID for GitHub access
+                        credentialsId: 'github-creds'
                 }
+                sh 'find truecd -name "*.sh" -exec chmod +x {} +'
             }
         }
 
@@ -185,10 +186,10 @@ pipeline {
                 python3 truecd/scripts/generate-mvp1-summary.py \
                     --reports-dir  reports \
                     --app-name     ${APP_NAME} \
-                    --build-number ${BUILD_NUMBER} \
-                    --commit       ${GIT_COMMIT} \
-                    --branch       ${BRANCH_NAME} \
-                    --build-url    ${BUILD_URL}
+                    --build-number ${env.BUILD_NUMBER} \
+                    --commit       ${env.GIT_COMMIT} \
+                    --branch       ${env.BRANCH_NAME ?: 'unknown'} \
+                    --build-url    ${env.BUILD_URL}
             """
             publishHTML(target: [
                 reportDir:            'reports',
