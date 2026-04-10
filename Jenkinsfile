@@ -93,6 +93,8 @@ pipeline {
                             --participant ${APP_NAME} \
                             --version ${GIT_COMMIT} \
                             --environment staging \
+                            --broker-url http://pact-broker:9292 \
+                            --ignore-no-pacts \
                             --output-dir reports/contracts
                     """
                 }
