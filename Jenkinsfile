@@ -43,7 +43,7 @@ pipeline {
                 // validate-oas.sh writes reports/oas/spectral-results.json automatically
                 sh '''
                     truecd/gates/01-planning/validate-oas.sh \
-                        --oas-file api-specs/**/*.yaml \
+                        --oas-file openapi.yaml \
                         --output-dir reports/oas
                 '''
                 sh 'python3 truecd/gates/01-planning/format-lint-report.py --output-dir reports/oas'
