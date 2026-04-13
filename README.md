@@ -104,7 +104,7 @@ docker run -p 8080:8080 \
 
 ## Swagger UI & OpenAPI
 
-- Swagger UI: http://localhost:8080/swagger-ui.html
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
 - Live OpenAPI JSON: http://localhost:8080/api-docs
 - Static spec: [`openapi.yaml`](openapi.yaml) (used by pipeline gates 1, 3, 5)
 
@@ -136,6 +136,148 @@ Flyway manages the schema. Migrations live in `src/main/resources/db/migration/`
 - `V2__create_transactions.sql` — transactions table with FK and indexes
 
 Hibernate is set to `validate` — it checks the schema but never modifies it.
+
+## Deploying to EC2
+
+Everything is handled by a single command — `deploy-app.sh` bootstraps a fresh server
+on first run, then builds and ships the JAR. Subsequent runs skip the bootstrap and
+just redeploy.
+
+### What gets installed on the server
+
+One Ubuntu server runs all four components natively (no Docker):
+
+| Component | Version | systemd service |
+|-----------|---------|-----------------|
+| Java app (Spring Boot) | 17 JRE | `ledger-api` |
+| PostgreSQL | 15 | `postgresql` |
+| Redis | 7 | `redis-server` |
+| Caddy (reverse proxy / TLS) | 2.9 | `caddy` |
+
+All services are enabled so they survive reboots. Boot order is enforced by
+systemd: PostgreSQL and Redis must be ready before `ledger-api` starts.
+
+### Recommended instance
+
+`t4g.small` — ARM64, 2 vCPU, 2 GB RAM (~$12/month on AWS).  
+`t4g.micro` (1 GB) also works; the script adds a 512 MB swap file as a safety net.
+
+### EC2 prerequisites
+
+Before running the script, ensure:
+
+1. **AMI**: Ubuntu 22.04 or 24.04 LTS
+2. **Instance type**: `t4g.small` (ARM) or `t3.small` (x86)
+3. **Key pair**: your `.pem` key is attached
+4. **Security group** — inbound rules:
+
+| Port | Source | Purpose |
+|------|--------|---------|
+| 22 | Your IP | SSH |
+| 80 | 0.0.0.0/0 | HTTP |
+| 443 | 0.0.0.0/0 | HTTPS |
+
+For automatic HTTPS, point your domain's DNS A record at the EC2 public IP before
+running the script.
+
+### Running the deploy
+
+```bash
+# Minimal — plain HTTP on port 80
+SSH_KEY=~/Downloads/key.pem ./deploy/deploy-app.sh ubuntu@<EC2-IP>
+
+# With a domain (Caddy will obtain a Let's Encrypt certificate automatically)
+SSH_KEY=~/Downloads/key.pem \
+CADDY_DOMAIN=api.example.com \
+DB_PASSWORD=secret \
+./deploy/deploy-app.sh ubuntu@<EC2-IP>
+```
+
+**Environment variables:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SSH_KEY` | _(none)_ | Path to `.pem` file |
+| `DB_PASSWORD` | `ledger` | PostgreSQL password set on the server |
+| `CADDY_DOMAIN` | `:80` | Domain for Caddy; set for automatic HTTPS |
+
+### What the script does
+
+On **first run** against a fresh server (bootstrap + deploy, ~5–7 min total):
+
+1. Detects the server is not yet bootstrapped
+2. Copies `user-data.sh` to the server and runs it as root
+3. Installs Java, PostgreSQL, Redis, Caddy
+4. Creates the `ledger` DB user and database
+5. Writes `/etc/ledger-api.env` (secrets) and all systemd unit files
+6. Enables all services for reboot survival
+7. Builds the fat JAR locally — `mvn clean package -DskipTests`
+8. Uploads the JAR and installs it at `/opt/ledger-api/app.jar`
+9. Starts `ledger-api` and polls `/actuator/health` until `UP`
+
+On **subsequent runs** (redeploy only, ~1–2 min):
+
+1. Detects bootstrap is already done — skips it
+2. Builds the fat JAR
+3. Uploads and installs the JAR
+4. Restarts the service and polls health
+
+Expected output (first run):
+
+```
+==> Checking if server needs bootstrapping...
+==> Server not bootstrapped — running setup (this takes ~5 minutes)...
+==> Bootstrap complete.
+==> Building fat JAR (skipping tests)...
+==> Built: target/ledger-api-1.0.0-SNAPSHOT.jar
+==> Uploading to ubuntu@<IP>:/tmp/app.jar ...
+==> Installing JAR and restarting ledger-api...
+==> Waiting for health check (up to 60s)...
+    [1/12] no response yet
+    [3/12] "status":"UP"
+==> Deployment successful. App is UP.
+```
+
+### Verifying
+
+```bash
+curl https://api.example.com/actuator/health
+curl https://api.example.com/api-docs
+open https://api.example.com/swagger-ui/index.html
+```
+
+### Ops reference
+
+All commands run on the server over SSH.
+
+```bash
+# Service status
+sudo systemctl status ledger-api caddy postgresql redis-server
+
+# Application logs
+sudo journalctl -u ledger-api -f
+
+# Caddy access logs
+sudo tail -f /var/log/caddy/access.log
+
+# Change domain or enable HTTPS after initial deploy
+sudo nano /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+
+# Change DB password or Redis config
+sudo nano /etc/ledger-api.env
+sudo systemctl restart ledger-api
+```
+
+### Deploy directory layout
+
+```
+deploy/
+├── deploy-app.sh       Single entry point — bootstrap + build + ship
+├── user-data.sh        Server bootstrap (called by deploy-app.sh automatically)
+├── Caddyfile           Reference Caddy config (live file: /etc/caddy/Caddyfile)
+└── ledger-api.service  Reference systemd unit (live file: /etc/systemd/system/)
+```
 
 ## Project layout
 

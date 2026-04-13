@@ -1,0 +1,30 @@
+# Reference copy — user-data.sh writes this to /etc/systemd/system/ledger-api.service
+# To update on the server:
+#   sudo cp ledger-api.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl restart ledger-api
+
+[Unit]
+Description=Ledger API (Spring Boot)
+After=network.target postgresql.service redis-server.service
+Requires=postgresql.service redis-server.service
+
+[Service]
+User=ledger
+Group=ledger
+EnvironmentFile=/etc/ledger-api.env
+WorkingDirectory=/opt/ledger-api
+ExecStart=/usr/bin/java \
+  -Xms64m -Xmx384m \
+  -XX:MaxMetaspaceSize=128m \
+  -Djava.security.egd=file:/dev/./urandom \
+  -jar /opt/ledger-api/app.jar
+Restart=on-failure
+RestartSec=15
+SuccessExitStatus=143
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ledger-api
+
+[Install]
+WantedBy=multi-user.target

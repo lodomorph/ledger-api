@@ -1,0 +1,20 @@
+# Caddyfile — reference copy (the live file lives at /etc/caddy/Caddyfile on the server)
+#
+# HTTP (no domain / IP access):
+#   Leave as ":80" — Caddy listens on port 80 and proxies to the Java app.
+#
+# HTTPS with automatic Let's Encrypt certificate (recommended):
+#   Replace ":80" with your domain, e.g. "api.example.com"
+#   Ensure port 443 is open in the EC2 security group.
+#   Caddy will obtain and renew the certificate automatically.
+#
+# After editing on the server, reload with:
+#   sudo systemctl reload caddy
+
+:80 {
+    reverse_proxy 127.0.0.1:8080
+
+    log {
+        output file /var/log/caddy/access.log
+    }
+}
