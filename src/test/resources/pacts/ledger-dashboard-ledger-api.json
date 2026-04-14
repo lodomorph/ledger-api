@@ -1,0 +1,84 @@
+{
+  "consumer": {
+    "name": "ledger-dashboard"
+  },
+  "provider": {
+    "name": "ledger-api"
+  },
+  "interactions": [
+    {
+      "description": "get account by id",
+      "providerStates": [
+        {
+          "name": "an account with id 00000000-0000-0000-0000-000000000001 exists"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/accounts/00000000-0000-0000-0000-000000000001"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "00000000-0000-0000-0000-000000000001",
+          "accountNumber": "ACC0000001",
+          "ownerName": "Juan dela Cruz",
+          "currency": "PHP",
+          "status": "ACTIVE"
+        },
+        "matchingRules": {
+          "body": {
+            "$.id":            { "matchers": [{ "match": "type" }] },
+            "$.accountNumber": { "matchers": [{ "match": "type" }] },
+            "$.ownerName":     { "matchers": [{ "match": "type" }] },
+            "$.currency":      { "matchers": [{ "match": "type" }] },
+            "$.status":        { "matchers": [{ "match": "type" }] }
+          }
+        }
+      }
+    },
+    {
+      "description": "create a new account",
+      "providerStates": [
+        {
+          "name": "the ledger service is available"
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "path": "/accounts",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "ownerName": "Juan dela Cruz",
+          "currency": "PHP"
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": "00000000-0000-0000-0000-000000000002",
+          "accountNumber": "ACC0000001",
+          "ownerName": "Juan dela Cruz",
+          "currency": "PHP",
+          "status": "ACTIVE"
+        },
+        "matchingRules": {
+          "body": {
+            "$.id":            { "matchers": [{ "match": "type" }] },
+            "$.accountNumber": { "matchers": [{ "match": "regex", "regex": "ACC\\d{7}" }] },
+            "$.ownerName":     { "matchers": [{ "match": "type" }] },
+            "$.currency":      { "matchers": [{ "match": "type" }] },
+            "$.status":        { "matchers": [{ "match": "type" }] }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  }
+}
