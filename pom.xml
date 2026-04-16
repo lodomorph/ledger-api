@@ -24,7 +24,7 @@
         <springdoc.version>2.5.0</springdoc.version>
         <testcontainers.version>1.19.8</testcontainers.version>
         <byte-buddy.version>1.14.19</byte-buddy.version>
-        <pact.version>4.6.14</pact.version>
+        <pact.version>4.6.16</pact.version>
     </properties>
 
     <dependencies>
@@ -202,6 +202,22 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Pact provider verification -->
+            <plugin>
+                <groupId>au.com.dius.pact.provider</groupId>
+                <artifactId>maven</artifactId>
+                <version>${pact.version}</version>
+                <configuration>
+                    <serviceProviders>
+                        <serviceProvider>
+                            <name>ledger-api</name>
+                            <pactBrokerUrl>${PACT_BROKER_BASE_URL}</pactBrokerUrl>
+                            <pactBrokerAuthenticationScheme>None</pactBrokerAuthenticationScheme>
+                        </serviceProvider>
+                    </serviceProviders>
+                </configuration>
             </plugin>
 
             <!-- JaCoCo -->
