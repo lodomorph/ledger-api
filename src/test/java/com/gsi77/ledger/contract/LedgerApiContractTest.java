@@ -76,6 +76,33 @@ public class LedgerApiContractTest {
         );
     }
 
+    @State("no account with id 00000000-0000-0000-0000-000000000999 exists")
+    void accountDoesNotExist() {
+        jdbcTemplate.update("DELETE FROM transactions WHERE account_id = '00000000-0000-0000-0000-000000000999'::uuid");
+        jdbcTemplate.update("DELETE FROM accounts WHERE id = '00000000-0000-0000-0000-000000000999'::uuid");
+    }
+
+    @State("an account with id 00000000-0000-0000-0000-000000000001 has transactions")
+    void accountExistsWithTransactions() {
+        jdbcTemplate.update("DELETE FROM transactions");
+        jdbcTemplate.update("DELETE FROM accounts");
+        jdbcTemplate.update(
+                "INSERT INTO accounts (id, account_number, owner_name, currency, status, created_at) " +
+                "VALUES (?::uuid, ?, ?, ?, ?, NOW())",
+                "00000000-0000-0000-0000-000000000001", "ACC0000001", "Juan dela Cruz", "PHP", "ACTIVE"
+        );
+        jdbcTemplate.update(
+                "INSERT INTO transactions (id, account_id, type, amount, description, balance_after, created_at) " +
+                "VALUES (?::uuid, ?::uuid, ?, ?, ?, ?, NOW())",
+                "00000000-0000-0000-0000-000000000010",
+                "00000000-0000-0000-0000-000000000001",
+                "CREDIT",
+                new java.math.BigDecimal("250.00"),
+                "Salary payment",
+                new java.math.BigDecimal("1500.00")
+        );
+    }
+
     @State("the ledger service is available")
     void serviceAvailable() {
         // No setup needed — the running Spring Boot app with Testcontainers is sufficient
