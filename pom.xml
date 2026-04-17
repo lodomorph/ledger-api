@@ -138,6 +138,9 @@
                         -XX:+EnableDynamicAgentLoading
                         -Dnet.bytebuddy.experimental=true
                     </argLine>
+                    <excludes>
+                        <exclude>**/contract/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 
