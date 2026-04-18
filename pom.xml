@@ -194,11 +194,12 @@
                         -XX:+EnableDynamicAgentLoading
                         -Dnet.bytebuddy.experimental=true
                     </argLine>
+                    <excludes>
+                        <exclude>**/contract/**</exclude>
+                    </excludes>
                     <environmentVariables>
                         <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
                         <TESTCONTAINERS_HOST_OVERRIDE>host.docker.internal</TESTCONTAINERS_HOST_OVERRIDE>
-                        <PACT_BROKER_BASE_URL>${pactbroker.url}</PACT_BROKER_BASE_URL>
-                        <PACT_BROKER_URL>${pactbroker.url}</PACT_BROKER_URL>
                     </environmentVariables>
                 </configuration>
                 <executions>
@@ -256,4 +257,34 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Activated by the contract test pipeline: mvn verify -Ppact-verify -->
+        <profile>
+            <id>pact-verify</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <includes>
+                                <include>**/contract/**IT.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>nothing</exclude>
+                            </excludes>
+                            <systemPropertyVariables>
+                                <pactbroker.url>${pactbroker.url}</pactbroker.url>
+                            </systemPropertyVariables>
+                            <environmentVariables>
+                                <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
+                                <TESTCONTAINERS_HOST_OVERRIDE>host.docker.internal</TESTCONTAINERS_HOST_OVERRIDE>
+                            </environmentVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
