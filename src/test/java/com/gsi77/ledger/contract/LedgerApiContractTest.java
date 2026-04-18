@@ -23,7 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @Provider("ledger-api")
-@PactBroker(url = "${PACT_BROKER_BASE_URL:http://pact-broker:9292}")
+@PactBroker(url = "${pact.broker.url}")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 @ActiveProfiles("test")

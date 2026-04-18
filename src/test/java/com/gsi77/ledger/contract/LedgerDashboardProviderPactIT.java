@@ -25,7 +25,7 @@ import org.testcontainers.utility.DockerImageName;
 
 @Provider("ledger-api")
 @Consumer("ledger-dashboard")
-@PactBroker(url = "${pactbroker.url:http://pact-broker:9292}")
+@PactBroker(url = "${pact.broker.url}")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 @ActiveProfiles("test")
