@@ -207,6 +207,22 @@
                 </executions>
             </plugin>
 
+            <!-- Pact provider verification -->
+            <plugin>
+                <groupId>au.com.dius.pact.provider</groupId>
+                <artifactId>maven</artifactId>
+                <version>4.6.16</version>
+                <configuration>
+                    <serviceProviders>
+                        <serviceProvider>
+                            <name>ledger-api</name>
+                            <pactBrokerUrl>${PACT_BROKER_BASE_URL}</pactBrokerUrl>
+                            <pactBrokerAuthenticationScheme>None</pactBrokerAuthenticationScheme>
+                        </serviceProvider>
+                    </serviceProviders>
+                </configuration>
+            </plugin>
+
             <!-- JaCoCo -->
             <plugin>
                 <groupId>org.jacoco</groupId>
