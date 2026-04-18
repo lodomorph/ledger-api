@@ -193,14 +193,12 @@
                         @{argLine}
                         -XX:+EnableDynamicAgentLoading
                         -Dnet.bytebuddy.experimental=true
-                        <!-- -Dpactbroker.url=${pactbroker.url} -->
                     </argLine>
-                    <systemPropertyVariables>
-                        <pact.broker.url>${pact.broker.url}</pact.broker.url>
-                    </systemPropertyVariables>
                     <environmentVariables>
                         <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
                         <TESTCONTAINERS_HOST_OVERRIDE>host.docker.internal</TESTCONTAINERS_HOST_OVERRIDE>
+                        <PACT_BROKER_BASE_URL>${pactbroker.url}</PACT_BROKER_BASE_URL>
+                        <PACT_BROKER_URL>${pactbroker.url}</PACT_BROKER_URL>
                     </environmentVariables>
                 </configuration>
                 <executions>
