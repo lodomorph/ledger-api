@@ -193,7 +193,7 @@
                         @{argLine}
                         -XX:+EnableDynamicAgentLoading
                         -Dnet.bytebuddy.experimental=true
-                        -Dpactbroker.url=${pactbroker.url}
+                        <!-- -Dpactbroker.url=${pactbroker.url} -->
                     </argLine>
                     <environmentVariables>
                         <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
