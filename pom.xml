@@ -26,7 +26,7 @@
         <byte-buddy.version>1.14.19</byte-buddy.version>
         <pact.version>4.6.16</pact.version>
         <!-- Overridden by -Dpactbroker.url=... on the Maven command line (pipeline passes http://pact-broker:9292) -->
-        <pactbroker.url>http://localhost:9292</pactbroker.url>
+        <pactbroker.url>http://pact-broker:9292</pactbroker.url>
     </properties>
 
     <dependencies>
