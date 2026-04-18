@@ -11,8 +11,3 @@ logging:
   level:
     root: WARN
     com.gsi77.ledger: DEBUG
-    # See the Pact library logic
-    au.com.dius.pact: DEBUG
-    # See the actual HTTP requests going out and coming in
-    org.apache.hc.client5.http: DEBUG
-    org.apache.hc.client5.http.wire: DEBUG
