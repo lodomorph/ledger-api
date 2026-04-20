@@ -193,6 +193,7 @@
                         @{argLine}
                         -XX:+EnableDynamicAgentLoading
                         -Dnet.bytebuddy.experimental=true
+                        -DDOCKER_API_VERSION=1.41
                     </argLine>
                     <excludes>
                         <exclude>**/contract/**</exclude>
@@ -275,6 +276,12 @@
                             <excludes>
                                 <exclude>nothing</exclude>
                             </excludes>
+                            <argLine>
+                                @{argLine}
+                                -XX:+EnableDynamicAgentLoading
+                                -Dnet.bytebuddy.experimental=true
+                                -DDOCKER_API_VERSION=1.41
+                            </argLine>
                             <systemPropertyVariables>
                                 <pactbroker.url>${pactbroker.url}</pactbroker.url>
                             </systemPropertyVariables>
