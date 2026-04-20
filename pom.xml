@@ -22,7 +22,7 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <springdoc.version>2.5.0</springdoc.version>
-        <testcontainers.version>1.19.8</testcontainers.version>
+        <testcontainers.version>1.20.4</testcontainers.version>
         <byte-buddy.version>1.14.19</byte-buddy.version>
         <pact.version>4.6.16</pact.version>
         <!-- Overridden by -Dpactbroker.url=... on the Maven command line (pipeline passes http://pact-broker:9292) -->
@@ -200,6 +200,7 @@
                     <environmentVariables>
                         <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
                         <TESTCONTAINERS_HOST_OVERRIDE>host.docker.internal</TESTCONTAINERS_HOST_OVERRIDE>
+                        <DOCKER_API_VERSION>1.41</DOCKER_API_VERSION>
                     </environmentVariables>
                 </configuration>
                 <executions>
@@ -280,6 +281,7 @@
                             <environmentVariables>
                                 <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
                                 <TESTCONTAINERS_HOST_OVERRIDE>host.docker.internal</TESTCONTAINERS_HOST_OVERRIDE>
+                                <DOCKER_API_VERSION>1.41</DOCKER_API_VERSION>
                             </environmentVariables>
                         </configuration>
                     </plugin>
