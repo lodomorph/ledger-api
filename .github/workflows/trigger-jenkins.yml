@@ -62,6 +62,12 @@ jobs:
           BRANCH_NAME:       ${{ github.ref_name }}
           GIT_SHA:           ${{ github.sha }}
         run: |
+          JENKINS_TRIGGER_URL="${JENKINS_URL}/job/ledger-api-sample-trigger/buildWithParameters"
+          JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}?token=${JENKINS_JOB_TOKEN}"
+          JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&BRANCH_NAME=${BRANCH_NAME}"
+          JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&GIT_SHA=${GIT_SHA}"
+          JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&TRIGGERED_BY=github-actions"
+
           HTTP_STATUS=$(curl \
             -f -s \
             -o /dev/null \
@@ -69,11 +75,7 @@ jobs:
             --max-time 30 \
             -u "${JENKINS_USER}:${JENKINS_API_TOKEN}" \
             -X POST \
-            "${JENKINS_URL}/job/ledger-api-sample-trigger/buildWithParameters\
-?token=${JENKINS_JOB_TOKEN}\
-&BRANCH_NAME=${BRANCH_NAME}\
-&GIT_SHA=${GIT_SHA}\
-&TRIGGERED_BY=github-actions")
+            "${JENKINS_TRIGGER_URL}")
 
           echo "Jenkins responded with HTTP ${HTTP_STATUS}"
 
