@@ -68,15 +68,17 @@ jobs:
           JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&GIT_SHA=${GIT_SHA}"
           JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&TRIGGERED_BY=github-actions"
 
-          HTTP_STATUS=$(curl \
-            -f -s \
-            -o /dev/null \
-            -w "%{http_code}" \
+          RESPONSE=$(curl \
+            -s \
+            -w "\n--- HTTP_STATUS: %{http_code}" \
             --max-time 30 \
             -u "${JENKINS_USER}:${JENKINS_API_TOKEN}" \
             -X POST \
             "${JENKINS_TRIGGER_URL}")
 
+          echo "${RESPONSE}"
+
+          HTTP_STATUS=$(echo "${RESPONSE}" | grep "HTTP_STATUS:" | awk '{print $NF}')
           echo "Jenkins responded with HTTP ${HTTP_STATUS}"
 
           # 201 = build queued successfully
