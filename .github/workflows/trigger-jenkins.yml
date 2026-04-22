@@ -62,7 +62,7 @@ jobs:
           BRANCH_NAME:       ${{ github.ref_name }}
           GIT_SHA:           ${{ github.sha }}
         run: |
-          JENKINS_TRIGGER_URL="${JENKINS_URL}/job/TrueCD/job/Gates/job/ledger-api-sample-trigger/buildWithParameters"
+          JENKINS_TRIGGER_URL="${JENKINS_URL}/job/CQD/job/ledger-api-sample-trigger/buildWithParameters"
           JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}?token=${JENKINS_JOB_TOKEN}"
           JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&BRANCH_NAME=${BRANCH_NAME}"
           JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&GIT_SHA=${GIT_SHA}"
