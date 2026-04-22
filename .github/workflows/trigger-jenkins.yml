@@ -1,0 +1,86 @@
+# =============================================================================
+# GitHub Actions Workflow — Trigger Jenkins on Branch Push
+# File: .github/workflows/trigger-jenkins.yml
+#
+# What it does:
+#   Fires on every push to any branch, then calls the Jenkins
+#   /buildWithParameters REST endpoint passing the branch name.
+#
+# Required GitHub Repository Secrets (Settings → Secrets → Actions):
+#   JENKINS_URL          — Base URL of your Jenkins instance, no trailing slash
+#                          e.g. https://jenkins.yourdomain.com
+#   JENKINS_USER         — Jenkins username (the account that owns the API token)
+#   JENKINS_API_TOKEN    — Jenkins user API token (NOT your password)
+#   JENKINS_JOB_TOKEN    — The "Authentication Token" set in the Jenkins job
+#                          (Trigger builds remotely → Authentication Token field)
+# =============================================================================
+
+name: Trigger Jenkins Pipeline
+
+on:
+  push:
+    branches:
+      - "**"   # every branch — narrow this to specific branches if needed
+
+jobs:
+  trigger-jenkins:
+    name: Trigger Jenkins — ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ── 1. Print context so the run is easy to trace in the Actions log ──────
+      - name: Log trigger context
+        run: |
+          echo "Event      : ${{ github.event_name }}"
+          echo "Repository : ${{ github.repository }}"
+          echo "Branch     : ${{ github.ref_name }}"
+          echo "Commit SHA : ${{ github.sha }}"
+          echo "Actor      : ${{ github.actor }}"
+
+      # ── 2. Call Jenkins /buildWithParameters via curl ─────────────────────────
+      #
+      # Endpoint breakdown:
+      #   POST  <JENKINS_URL>/job/<JOB_NAME>/buildWithParameters
+      #         ?token=<JENKINS_JOB_TOKEN>          ← authenticates the remote trigger
+      #         &BRANCH_NAME=<branch>               ← pipeline parameter (string param)
+      #         &GIT_SHA=<sha>                      ← pipeline parameter (string param)
+      #
+      # -u user:api_token  → Jenkins crumb-free authentication with API token
+      # -f                 → fail on HTTP 4xx/5xx (causes the step to fail)
+      # -s                 → silent (no progress bar)
+      # -o /dev/null       → discard response body (Jenkins returns empty 201)
+      # -w "%{http_code}"  → print status code for traceability
+      # --max-time 30      → timeout after 30s (Jenkins queues the build, doesn't wait)
+      # ─────────────────────────────────────────────────────────────────────────
+      - name: Trigger Jenkins build
+        env:
+          JENKINS_URL:       ${{ secrets.JENKINS_URL }}
+          JENKINS_USER:      ${{ secrets.JENKINS_USER }}
+          JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
+          JENKINS_JOB_TOKEN: ${{ secrets.JENKINS_JOB_TOKEN }}
+          BRANCH_NAME:       ${{ github.ref_name }}
+          GIT_SHA:           ${{ github.sha }}
+        run: |
+          HTTP_STATUS=$(curl \
+            -f -s \
+            -o /dev/null \
+            -w "%{http_code}" \
+            --max-time 30 \
+            -u "${JENKINS_USER}:${JENKINS_API_TOKEN}" \
+            -X POST \
+            "${JENKINS_URL}/job/ledger-api-sample-trigger/buildWithParameters\
+?token=${JENKINS_JOB_TOKEN}\
+&BRANCH_NAME=${BRANCH_NAME}\
+&GIT_SHA=${GIT_SHA}\
+&TRIGGERED_BY=github-actions")
+
+          echo "Jenkins responded with HTTP ${HTTP_STATUS}"
+
+          # 201 = build queued successfully
+          if [ "${HTTP_STATUS}" != "201" ]; then
+            echo "ERROR: Jenkins returned ${HTTP_STATUS} — check URL, token, and job name."
+            exit 1
+          fi
+
+          echo "Build queued in Jenkins for branch '${BRANCH_NAME}'."

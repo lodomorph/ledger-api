@@ -193,7 +193,6 @@
                         @{argLine}
                         -XX:+EnableDynamicAgentLoading
                         -Dnet.bytebuddy.experimental=true
-                        -DDOCKER_API_VERSION=1.41
                     </argLine>
                     <excludes>
                         <exclude>**/contract/**</exclude>
@@ -201,7 +200,6 @@
                     <environmentVariables>
                         <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
                         <TESTCONTAINERS_HOST_OVERRIDE>host.docker.internal</TESTCONTAINERS_HOST_OVERRIDE>
-                        <DOCKER_API_VERSION>1.41</DOCKER_API_VERSION>
                     </environmentVariables>
                 </configuration>
                 <executions>
@@ -280,7 +278,6 @@
                                 @{argLine}
                                 -XX:+EnableDynamicAgentLoading
                                 -Dnet.bytebuddy.experimental=true
-                                -DDOCKER_API_VERSION=1.41
                             </argLine>
                             <systemPropertyVariables>
                                 <pactbroker.url>${pactbroker.url}</pactbroker.url>
@@ -288,7 +285,6 @@
                             <environmentVariables>
                                 <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
                                 <TESTCONTAINERS_HOST_OVERRIDE>host.docker.internal</TESTCONTAINERS_HOST_OVERRIDE>
-                                <DOCKER_API_VERSION>1.41</DOCKER_API_VERSION>
                             </environmentVariables>
                         </configuration>
                     </plugin>
