@@ -290,3 +290,5 @@ src/main/java/com/gsi77/ledger/
 ├── exception/        Custom exceptions + GlobalExceptionHandler
 └── config/           Redis and OpenAPI configuration
 ```
+
+;;;
