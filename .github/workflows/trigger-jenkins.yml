@@ -58,16 +58,7 @@ jobs:
           JENKINS_URL:       ${{ secrets.JENKINS_URL }}
           JENKINS_USER:      ${{ secrets.JENKINS_USER }}
           JENKINS_API_TOKEN: ${{ secrets.JENKINS_API_TOKEN }}
-          JENKINS_JOB_TOKEN: ${{ secrets.JENKINS_JOB_TOKEN }}
-          BRANCH_NAME:       ${{ github.ref_name }}
-          GIT_SHA:           ${{ github.sha }}
         run: |
-          JENKINS_TRIGGER_URL="${JENKINS_URL}/job/CQD/job/ledger-api-sample-trigger/buildWithParameters"
-          JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}?token=${JENKINS_JOB_TOKEN}"
-          JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&BRANCH_NAME=${BRANCH_NAME}"
-          JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&GIT_SHA=${GIT_SHA}"
-          JENKINS_TRIGGER_URL="${JENKINS_TRIGGER_URL}&TRIGGERED_BY=github-actions"
-
           HTTP_STATUS=$(curl \
             -f -s \
             -o /dev/null \
@@ -75,7 +66,13 @@ jobs:
             --max-time 30 \
             -u "${JENKINS_USER}:${JENKINS_API_TOKEN}" \
             -X POST \
-            "${JENKINS_TRIGGER_URL}")
+            "${JENKINS_URL}/job/ledger-api-sample-trigger/buildWithParameters" \
+            --data-urlencode "PROJECT_REPO=${{ github.server_url }}/${{ github.repository }}.git" \
+            --data-urlencode "APP_NAME=${{ github.event.repository.name }}" \
+            --data-urlencode "BRANCH_NAME=${{ github.ref_name }}" \
+            --data-urlencode "GIT_SHA=${{ github.sha }}" \
+            --data-urlencode "TRIGGERED_BY=github-actions" \
+            --data-urlencode "PACT_ROLE=provider")
 
           echo "Jenkins responded with HTTP ${HTTP_STATUS}"
 
@@ -85,4 +82,4 @@ jobs:
             exit 1
           fi
 
-          echo "Build queued in Jenkins for branch '${BRANCH_NAME}'."
+          echo "Build queued in Jenkins for branch '${{ github.ref_name }}'."
