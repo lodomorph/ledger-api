@@ -291,3 +291,4 @@ src/main/java/com/gsi77/ledger/
 └── config/           Redis and OpenAPI configuration
 ```
 
+test
